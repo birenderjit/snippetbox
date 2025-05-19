@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	//"html/template"
+	"html/template"
 	"net/http"
 	"snippetbox.birenderjit.com/internal/models"
 	"strconv"
@@ -18,26 +18,26 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, snippet := range snippets {
-		fmt.Fprintf(w, "%+v\n", snippet)
+	files := []string{
+		"./ui/html/base.html",
+		"./ui/html/partials/nav.html",
+		"./ui/html/pages/home.html",
 	}
 
-	//files := []string{
-	//	"./ui/html/base.html",
-	//	"./ui/html/partials/nav.html",
-	//	"./ui/html/pages/home.html",
-	//}
-	//
-	//ts, err := template.ParseFiles(files...)
-	//if err != nil {
-	//	app.serverError(w, r, err)
-	//	return
-	//}
-	//
-	//err = ts.ExecuteTemplate(w, "base", nil)
-	//if err != nil {
-	//	app.serverError(w, r, err)
-	//}
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	data := templateData{
+		Snippets: snippets,
+	}
+
+	err = ts.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		app.serverError(w, r, err)
+	}
 }
 
 // Add a snippetView handler function
@@ -61,8 +61,26 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Write the snippet data as a plain-text HTTP response body.
-	fmt.Fprintf(w, "%+v", snippet)
+	files := []string{
+		"./ui/html/base.html",
+		"./ui/html/partials/nav.html",
+		"./ui/html/pages/view.html",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	data := templateData{
+		Snippet: snippet,
+	}
+
+	err = ts.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		app.serverError(w, r, err)
+	}
 
 }
 
