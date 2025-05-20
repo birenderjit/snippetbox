@@ -5,10 +5,20 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
+
 	//"runtime/debug"
 
 	"github.com/go-playground/form/v4"
 )
+
+func (app *application) newTemplateData(r *http.Request) templateData {
+	return templateData{
+		CurrentYear: time.Now().Year(),
+		// Add the flash message to the template data, if one exists.
+		Flash: app.sessionManager.PopString(r.Context(), "flash"),
+	}
+}
 
 // The serverError helper writes a log entry at Error level (including the request
 // method and the URI as attributes), then sends a generic 500 Internal Server Error
