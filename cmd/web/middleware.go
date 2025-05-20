@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 )
 
@@ -27,6 +28,23 @@ func (app *application) logRequest(next http.Handler) http.Handler {
 			uri    = r.URL.RequestURI()
 		)
 		app.logger.Info("received request", "ip", ip, "protocol", proto, "method", method, "uri", uri)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) recoverPanic(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Create a deferred function that will always be run in the event of a panic as Go unwinds the stack.
+		defer func() {
+			// use the builtin recover function to check if there has been a panic or not, if panic then recover...
+			if err := recover(); err != nil {
+				// Set a "Connection: close" header in the response.
+				w.Header().Set("Connection", "close")
+				// Call the app.ServerError helper method to return a 500 Internal Server response.
+				app.serverError(w, r, fmt.Errorf("%s", err))
+			}
+		}()
+
 		next.ServeHTTP(w, r)
 	})
 }
