@@ -69,3 +69,6 @@ atlassian-ide-plugin.xml
 
 # Go workspace file
 go.work
+
+# Dont push tls cert stuff to git
+tls/
