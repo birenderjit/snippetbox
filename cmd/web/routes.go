@@ -3,20 +3,21 @@ package main
 import (
 	"github.com/justinas/alice"
 	"net/http"
+	"snippetbox.birenderjit.com/ui"
 )
 
 func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 
-	// Create a file server which serves files out of the "./ui/static" directory.
-	//Note that the path given to the http.Dir function is relative to the project
-	//directory root.
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
-
-	// Use the mux.Handle() function to register the file server as the handler for //
-	// all URL paths that start with "/static/". For matching paths, we strip the //
-	// "/static" prefix before the request reaches the file server.
-	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
+	// Use the http.FileServerFS() function to create a HTTP handler which
+	// serves the embedded files in ui.Files. It's important to note that our
+	// static files are contained in the "static" folder of the ui.Files
+	// embedded filesystem. So, for example, our CSS stylesheet is located at
+	// "static/css/main.css". This means that we no longer need to strip the
+	// prefix from the request URL -- any requests that start with /static/ can
+	// just be passed directly to the file server and the corresponding static
+	// file will be served (so long as it exists).
+	mux.Handle("GET /static/", http.FileServerFS(ui.Files))
 
 	// Unprotected application routes using the "dynamic" middleware chain.
 	// Use the nosurf middleware on all our 'dynamic' routes.
