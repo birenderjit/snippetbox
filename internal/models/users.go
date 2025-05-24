@@ -3,11 +3,18 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"github.com/go-sql-driver/mysql"
-	"golang.org/x/crypto/bcrypt"
 	"strings"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
+	"golang.org/x/crypto/bcrypt"
 )
+
+type UserModelInterface interface {
+	Insert(name, email, password string) error
+	Authenticate(email, password string) (int, error)
+	Exists(id int) (bool, error)
+}
 
 // Define a new User struct. Notice how the field names and types align
 // with the columns in the database "users" table?
